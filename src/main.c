@@ -1,4 +1,6 @@
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_scancode.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -12,11 +14,14 @@ const int HEIGHT = 600;
 int main(int argc, char** argv) {
     // Create window
     Window window;
-    initWindow(&window, "test", WIDTH, HEIGHT, 0);
+    initWindow(&window, "Mandelbrot viewer", WIDTH, HEIGHT, 0);
 
-    window.pixels = mandelbrot_color_pixels_generate(
-        WIDTH, HEIGHT, 1000, 0, 0,
-        HEIGHT / 2);  // width height max_iter camX camY scale
+    size_t max_iter = 1000;
+    double camX = 0, camY = 0;
+    size_t scale = HEIGHT / 2;
+
+    window.pixels = mandelbrot_color_pixels_generate(WIDTH, HEIGHT, max_iter,
+                                                     camX, camY, scale);
 
     // Variables used for calculating FPS
     int FPS;
@@ -26,6 +31,7 @@ int main(int argc, char** argv) {
 
     // Main loop
     bool running = true;
+    bool new_needed = false;  // True if new set needed
     while (running) {
         // Check for quitting
         SDL_Event e;
@@ -33,6 +39,37 @@ int main(int argc, char** argv) {
             if (e.type == SDL_EVENT_QUIT) {
                 running = false;
             }
+        }
+
+        // Get keystate
+        const bool* keystate = SDL_GetKeyboardState(NULL);
+
+        // Live controls
+        if (keystate[SDL_SCANCODE_Q]) {
+            scale *= 2;
+            new_needed = true;
+        } else if (keystate[SDL_SCANCODE_W]) {
+            camY += (double)HEIGHT / (scale * 4);
+            new_needed = true;
+        } else if (keystate[SDL_SCANCODE_E]) {
+            scale /= 2;
+            new_needed = true;
+        } else if (keystate[SDL_SCANCODE_A]) {
+            camX -= (double)HEIGHT / (scale * 4);
+            new_needed = true;
+        } else if (keystate[SDL_SCANCODE_S]) {
+            camY -= (double)HEIGHT / (scale * 4);
+            new_needed = true;
+        } else if (keystate[SDL_SCANCODE_D]) {
+            camX += (double)HEIGHT / (scale * 4);
+            new_needed = true;
+        }
+
+        // New set if needed
+        if (new_needed) {
+            window.pixels = mandelbrot_color_pixels_generate(
+                WIDTH, HEIGHT, max_iter, camX, camY, scale);
+            new_needed = false;
         }
 
         renderPixels(&window);
@@ -47,7 +84,7 @@ int main(int argc, char** argv) {
         }
 
         // Delay
-        uint32_t delay = (17 - (SDL_GetTicks() - lastFrame));
+        ssize_t delay = (17 - (SDL_GetTicks() - lastFrame));
         if (delay > 0) {
             SDL_Delay(delay);
         }
