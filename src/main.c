@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_scancode.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -8,8 +9,8 @@
 #include "../inc/window.h"
 
 // Width and height
-const int WIDTH = 1200;
-const int HEIGHT = 600;
+const size_t WIDTH = 1200;
+const size_t HEIGHT = 600;
 
 int main(int argc, char** argv) {
     // Create window

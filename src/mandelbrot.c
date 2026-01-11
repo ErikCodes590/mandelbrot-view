@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 // Function used to check if pixel is in mandelbrot set
-size_t checkpixel(double r, double i, int iter) {
+size_t checkpixel(double r, double i, size_t iter) {
     double currentR = 0;
     double currentI = 0;
 
@@ -25,30 +25,26 @@ size_t checkpixel(double r, double i, int iter) {
     return iter;
 }
 
-// This calculates the complex number of the pixel
-void getVar(int w, int h, double* r, double* i, size_t pixel, double camX,
-            double camY, size_t scale) {
-    // Get the pixel with the display settings
-    int px = ((pixel % w) - (w / 2));
-    int py = ((h / 2) - (pixel / w));
-
-    // Apply scale and cam params
-    *r = ((double)px / scale + camX);
-    *i = ((double)py / scale + camY);
-}
-
 // This calculates the mandelbrot set with no color
-size_t* mandelbrot(int w, int h, int iter, double camX, double camY,
+size_t* mandelbrot(int w, int h, size_t iter, double camX, double camY,
                    size_t scale) {
     // res is the "screen"
     size_t* res = malloc(w * h * sizeof(size_t));
 
-    // Iterate thru pixels of the screen
-    for (int j = 0; j < (w * h); ++j) {
-        double r = 0, i = 0;
-        getVar(w, h, &r, &i, j, camX, camY, scale);
+    // I think these speed up the process
+    int w_p_start = -w / 2;
+    int w_p_end = w / 2;
 
-        res[j] = checkpixel(r, i, iter);
+    // Iterate thru pixels of the screen
+    size_t iterator = 0;
+    for (int h_p = h / 2; h_p > -h / 2; --h_p) {
+        for (int w_p = w_p_start; w_p < w_p_end; ++w_p) {
+            double r = (double)w_p / scale + camX,
+                   i = (double)h_p / scale + camY;
+
+            res[iterator] = checkpixel(r, i, iter);
+            ++iterator;
+        }
     }
 
     return res;
@@ -79,8 +75,9 @@ uint32_t* to_col(size_t* mandelbrot, int w, int h, int iter) {
 }
 
 // This function calculates the mandelbrot set with colors
-uint32_t* mandelbrot_color_pixels_generate(int w, int h, int iter, double camX,
-                                           double camY, size_t scale) {
+uint32_t* mandelbrot_color_pixels_generate(size_t w, size_t h, size_t iter,
+                                           double camX, double camY,
+                                           size_t scale) {
     // Mandel is the raw mandelbrot set
     size_t* mandel = mandelbrot(w, h, iter, camX, camY, scale);
 
