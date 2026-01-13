@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     Window window;
     initWindow(&window, "Mandelbrot viewer", WIDTH, HEIGHT, 0);
 
-    size_t max_iter = 1000;
+    size_t max_iter = 5000;
     double camX = 0, camY = 0;
     size_t scale = HEIGHT / 2;
 
@@ -49,21 +49,27 @@ int main(int argc, char** argv) {
         if (keystate[SDL_SCANCODE_Q]) {
             scale *= 2;
             new_needed = true;
+            SDL_Delay(200);
         } else if (keystate[SDL_SCANCODE_W]) {
             camY += (double)HEIGHT / (scale * 4);
             new_needed = true;
+            SDL_Delay(200);
         } else if (keystate[SDL_SCANCODE_E]) {
             scale /= 2;
             new_needed = true;
+            SDL_Delay(200);
         } else if (keystate[SDL_SCANCODE_A]) {
             camX -= (double)HEIGHT / (scale * 4);
             new_needed = true;
+            SDL_Delay(200);
         } else if (keystate[SDL_SCANCODE_S]) {
             camY -= (double)HEIGHT / (scale * 4);
             new_needed = true;
+            SDL_Delay(200);
         } else if (keystate[SDL_SCANCODE_D]) {
             camX += (double)HEIGHT / (scale * 4);
             new_needed = true;
+            SDL_Delay(200);
         }
 
         // New set if needed

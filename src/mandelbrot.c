@@ -56,8 +56,10 @@ uint32_t px_col(size_t px, int iter) {
         // Black if iter == max_iter
         return 0x000000FF;
     } else {
-        px *= 2000;
-        return px | 0x000000FF;
+        px *= 30;  // This makes it more colorful
+        uint32_t res =
+            0x000000FF | (px << 8) | (px % (1 << 8)) | (px % (1 << 16));
+        return res;
     }
 }
 
